@@ -20,7 +20,8 @@ type UpdateData struct {
 }
 
 func sayThanks(callbackUrl string) {
-    var respStr = []byte(`{"msg":"Thank you very much!"}`)
+    var respStr = []byte(`{"state": "success", "description": "Thank you very much!"}`)
+    log.Println("Going to call", callbackUrl)
     req, err := http.NewRequest("POST", callbackUrl, bytes.NewBuffer(respStr))
     // req.Header.Set("X-Custom-Header", "myvalue")
     req.Header.Set("Content-Type", "application/json")
