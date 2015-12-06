@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"bytes"
 	"log"
 	"net/http"
@@ -17,7 +18,8 @@ type UpdateData struct {
 	Repository UpdateData_Repository `json:"repository"`
 }
 type KubeReloadApp struct {
-	repoChan chan string
+	RepoChan chan string
+	Config map[string]string
 }
 
 func sayThanks(callbackUrl string) {
@@ -51,18 +53,33 @@ func (app *KubeReloadApp) handler(w http.ResponseWriter, r *http.Request) {
         log.Fatal(err)
     }
     sayThanks(data.CallbackUrl)
-    app.repoChan <- data.Repository.RepoName
+    app.RepoChan <- data.Repository.RepoName
 }
 
 func (app *KubeReloadApp) reloader() {
 	for {
-		repo := <-app.repoChan
-		log.Println(repo)
+		repo := <-app.RepoChan
+		log.Println("Was notified that repo updated:", repo)
+		rc := app.Config[repo]
+		log.Println("And I gonna reload rc:", rc)
 	}
 }
 
 func main() {
-	app := KubeReloadApp{ repoChan: make(chan string) }
+	file, err := os.Open("./config.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+    decoder := json.NewDecoder(file)
+    config := map[string]string{}
+    err = decoder.Decode(&config)
+	if err != nil {
+        log.Fatal(err)
+    }
+    js, _ := json.Marshal(config)
+    log.Println(string(js))
+
+	app := KubeReloadApp{ RepoChan: make(chan string), Config: config }
 	go app.reloader()
 	log.Println("Listening on *:80")
 	mux := http.NewServeMux()
