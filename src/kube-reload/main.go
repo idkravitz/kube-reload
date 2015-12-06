@@ -9,9 +9,8 @@ import (
 	)
 
 
-type UpdateData_Repository {
+type UpdateData_Repository struct {
 	RepoName string `json:"repo_name"`
-
 }
 type UpdateData struct {
 	CallbackUrl string `json:"callback_url"`
