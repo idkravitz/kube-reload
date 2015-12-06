@@ -2,8 +2,10 @@ package main
 
 import (
 	"os"
+	"fmt"
 	"bytes"
 	"log"
+	"os/exec"
 	"net/http"
 	"io/ioutil"
 	"encoding/json"
@@ -20,6 +22,8 @@ type UpdateData struct {
 type KubeReloadApp struct {
 	RepoChan chan string
 	Config map[string]string
+	KubeMasterHost string
+	KubeMasterPort string
 }
 
 func sayThanks(callbackUrl string) {
@@ -57,11 +61,19 @@ func (app *KubeReloadApp) handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *KubeReloadApp) reloader() {
+	if app.KubeMasterPort == "" { log.Fatal("kube_master port is not set") }
+	if app.KubeMasterHost == "" { log.Fatal("kube_master host is not set")}
+	os.Setenv("no_proxy", app.KubeMasterHost)
 	for {
 		repo := <-app.RepoChan
 		log.Println("Was notified that repo updated:", repo)
 		rc := app.Config[repo]
 		log.Println("And I gonna reload rc:", rc)
+		cmd := exec.Command("./kubectl", "-s", fmt.Sprintf("%v:%v", app.KubeMasterHost, app.KubeMasterPort), "get", "pods")
+		log.Println("exec reload")
+		out, _ := cmd.CombinedOutput()
+		log.Println(out)
+		// if err != nil { log.Println(err) }
 	}
 }
 
@@ -79,7 +91,7 @@ func main() {
     js, _ := json.Marshal(config)
     log.Println(string(js))
 
-	app := KubeReloadApp{ RepoChan: make(chan string), Config: config }
+	app := KubeReloadApp{ RepoChan: make(chan string), Config: config, KubeMasterHost: os.Getenv("KUBE_MASTER_HOST"), KubeMasterPort: os.Getenv("KUBE_MASTER_PORT") }
 	go app.reloader()
 	log.Println("Listening on *:80")
 	mux := http.NewServeMux()
