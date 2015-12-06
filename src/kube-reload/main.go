@@ -69,7 +69,7 @@ func (app *KubeReloadApp) reloader() {
 		log.Println("Was notified that repo updated:", repo)
 		rc := app.Config[repo]
 		log.Println("And I gonna reload rc:", rc)
-		cmd := exec.Command("./kubectl", "-s", fmt.Sprintf("%v:%v", app.KubeMasterHost, app.KubeMasterPort), "rolling-update", rc, fmt.Sprintf(`--image="%v:latest"`, repo))
+		cmd := exec.Command("./kubectl", "-s", fmt.Sprintf("%v:%v", app.KubeMasterHost, app.KubeMasterPort), "rolling-update", rc, fmt.Sprintf(`--image=%v:latest`, repo))
 		log.Println("exec reload")
 		out, _ := cmd.CombinedOutput()
 		log.Println(string(out))
