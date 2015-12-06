@@ -16,14 +16,18 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-    decoder := json.NewDecoder(r.Body)
-    t := map[string]interface{}{}
-    err := decoder.Decode(&t)
-    if err != nil {
-        log.Fatal(err)
-    }
-    ddd, _ := json.Marshal(&t)
-    log.Println(string(ddd))
+	r.ParseMultipartForm(10 << 20)
+
+	js, _ := json.Marshal(r.PostForm)
+    // decoder := json.NewDecoder(r.Body)
+    // t := map[string]interface{}{}
+    // err := decoder.Decode(&t)
+    // if err != nil {
+    //     log.Fatal(err)
+    // }
+    // ddd, _ := json.Marshal(&t)
+    // log.Println(string(ddd))
+    log.Println(string(js))
 }
 
 func main() {
