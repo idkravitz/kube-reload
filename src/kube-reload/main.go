@@ -72,7 +72,7 @@ func (app *KubeReloadApp) reloader() {
 		cmd := exec.Command("./kubectl", "-s", fmt.Sprintf("%v:%v", app.KubeMasterHost, app.KubeMasterPort), "get", "pods")
 		log.Println("exec reload")
 		out, _ := cmd.CombinedOutput()
-		log.Println(out)
+		log.Println(string(out))
 		// if err != nil { log.Println(err) }
 	}
 }
