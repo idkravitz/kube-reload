@@ -16,6 +16,9 @@ type UpdateData struct {
 	CallbackUrl string `json:"callback_url"`
 	Repository UpdateData_Repository `json:"repository"`
 }
+type KubeReloadApp struct {
+	repoChan chan string
+}
 
 func sayThanks(callbackUrl string) {
     var respStr = []byte(`{"state": "success", "description": "Thank you very much!"}`)
@@ -35,7 +38,7 @@ func sayThanks(callbackUrl string) {
     log.Println("response Body:", string(body))
 }
 
-func handler(w http.ResponseWriter, r *http.Request) {
+func (app *KubeReloadApp) handler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.NotFound(w, r)
 		return
@@ -48,11 +51,21 @@ func handler(w http.ResponseWriter, r *http.Request) {
         log.Fatal(err)
     }
     sayThanks(data.CallbackUrl)
+    app.repoChan <- data.Repository.RepoName
+}
+
+func (app *KubeReloadApp) reloader() {
+	for {
+		repo := <-app.repoChan
+		log.Println(repo)
+	}
 }
 
 func main() {
+	app := KubeReloadApp{ repoChan: make(chan string) }
+	go app.reloader()
 	log.Println("Listening on *:80")
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", handler)
+	mux.HandleFunc("/", app.handler)
 	http.ListenAndServe(":80", mux)
 }
