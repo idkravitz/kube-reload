@@ -27,7 +27,7 @@ type KubeReloadApp struct {
 }
 
 func sayThanks(callbackUrl string) {
-    var respStr = []byte(`{"state": "success", "description": "Thank you very much!"}`)
+    var respStr = []byte(`{"state": "success", "description": "Reload started", "context": "Kube-reloader", "target_url": "http://cuba.dvfu.ru/tram_test"}`)
     log.Println("Going to call", callbackUrl)
     req, err := http.NewRequest("POST", callbackUrl, bytes.NewBuffer(respStr))
     req.Header.Set("Content-Type", "application/json")
