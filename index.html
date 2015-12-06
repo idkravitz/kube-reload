@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ru" ng-app="tram">
+<head>
+	<title>Test kube-reload</title>
+	<script src="http://code.jquery.com/jquery-1.8.3.min.js"></script>
+</head>
+<body>
+Test
+<script type="text/javascript">
+	$(function () {
+		// console.log('ok');
+		var testData = {
+		  "push_data":{
+		    "pushed_at":1385141110,
+		    "images":[
+		      "imagehash1",
+		      "imagehash2",
+		      "imagehash3"
+		    ],
+		    "pusher":"username"
+		  },
+		  "repository":{
+		    "status":"Active",
+		    "description":"my docker repo that does cool things",
+		    "is_trusted":false,
+		    "full_description":"This is my full description",
+		    "repo_url":"https://registry.hub.docker.com/u/username/reponame/",
+		    "owner":"username",
+		    "is_official":false,
+		    "is_private":false,
+		    "name":"reponame",
+		    "namespace":"username",
+		    "star_count":1,
+		    "comment_count":1,
+		    "date_created":1370174400,
+		    "dockerfile":"my full dockerfile is listed here",
+		    "repo_name":"username/reponame"
+		  }
+		};
+		$.post('/', testData, function () {
+
+		});
+	})
+</script>
+</body>
+</html>
