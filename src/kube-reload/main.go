@@ -3,8 +3,10 @@ package main
 import (
 	"io"
 	"os"
+	"bytes"
 	"log"
 	"net/http"
+	"io/ioutil"
 	"encoding/json"
 	)
 
@@ -15,6 +17,24 @@ type UpdateData_Repository struct {
 type UpdateData struct {
 	CallbackUrl string `json:"callback_url"`
 	Repository UpdateData_Repository `json:"repository"`
+}
+
+func sayThanks(callbackUrl string) {
+    var respStr = []byte(`{"msg":"Thank you very much!"}`)
+    req, err := http.NewRequest("POST", callbackUrl, bytes.NewBuffer(respStr))
+    // req.Header.Set("X-Custom-Header", "myvalue")
+    req.Header.Set("Content-Type", "application/json")
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer resp.Body.Close()
+
+    log.Println("response Status:", resp.Status)
+    log.Println("response Headers:", resp.Header)
+    body, _ := ioutil.ReadAll(resp.Body)
+    log.Println("response Body:", string(body))
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
@@ -35,8 +55,14 @@ func handler(w http.ResponseWriter, r *http.Request) {
     if err != nil {
         log.Fatal(err)
     }
-    js, _ := json.Marshal(&data)
-    log.Println(string(js))
+    sayThanks(data.CallbackUrl)
+    // js, _ := json.Marshal(&data)
+    // log.Println(string(js))
+
+    // url := "http://restapi3.apiary.io/notes"
+    // fmt.Println("URL:>", url)
+
+
     // log.Println(string(js))
 }
 
